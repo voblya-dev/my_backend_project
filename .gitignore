@@ -1,0 +1,24 @@
+# Виртуальное окружение
+venv/
+.venv/
+env/
+ENV/
+
+# Python кеш
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+
+# База данных (если не хочешь версионировать)
+*.db
+*.sqlite3
+
+# Логи
+*.log
+server.log
+
+# IDE
+.vscode/
+.idea/
