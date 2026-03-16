@@ -15,7 +15,7 @@ films = []
 
 @app.get("/")
 def read_root():
-    return "Nikita Petrovich Best teacher in the world!!! thank for domen)"
+    return "Nikita Petrovich is the best teacher in the world!!! thank for the domen)"
 
 # Path параметр 
 
