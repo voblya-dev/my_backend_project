@@ -5,12 +5,14 @@
         <meta charset="UTF-8">
     </head>
     <body>
-        <form action="https://backend.contrainer.ru/new_film_from_form" method="post">
+        <form enctype="multipart/form-data" action="https://backend.contrainer.ru/new_film_from_form" method="post">
             <input name="title" type="text" maxlength="30" required placeholder="Название фильма">
             <br>
             <input name="director" type="text" maxlength="30" required placeholder="Режиссёр">
             <br>
             <input name="year" type="number" min="1900" max="2026" requared placeholder="Год выхода фильма">
+            <br>
+            <label><input type="file" name="poster" accept="image/*" required></label>
             <br>
             <input type="submit" value="Добавить фильм">
         </form>

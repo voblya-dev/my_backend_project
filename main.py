@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException
 from pydantic import BaseModel
 import sqlite3
 from fastapi.responses import JSONResponse
@@ -27,7 +27,7 @@ def read_root():
 def get_film(film_id: int):
     conn = sqlite3.connect("first_base.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM `Films` WHERE `id`=?;", (film_id,))
+    cursor.execute("SELECT `id`, `Title`, `Director`, `Year` FROM `Films` WHERE `id`=?;", (film_id,))
     film = cursor.fetchone()
     conn.close()
     
@@ -49,7 +49,7 @@ def get_film(film_id: int):
 def get_all_films():
     conn = sqlite3.connect("first_base.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM `Films` ORDER BY `id`;")
+    cursor.execute("SELECT `id`, `Title`, `Director`, `Year` FROM `Films` ORDER BY `id`;")
     rows = cursor.fetchall()
     conn.close()
     
@@ -202,18 +202,25 @@ def get_id_stats():
     }
 
 @app.post("/new_film_from_form")
-def add_new_film_from_form(
+async def add_new_film_from_form(
     title: str = Form(...),
     director: str = Form(...),
-    year: int = Form(...)
+    year: int = Form(...),
+    poster: UploadFile = File()
 ):
+    
+    if not poster.content_type or not poster.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Загружать можно только картинки")
+
+    poster_bytes = await poster.read()
+
     conn = sqlite3.connect("first_base.db")
     cursor = conn.cursor()
 
     cursor.execute(
-        f"INSERT INTO `Films`(`Title`, `Director`, `Year`)" \
-        "VALUES(?, ?, ?)",
-        (title, director, year)
+        f"INSERT INTO `Films`(`Title`, `Director`, `Year`, `poster_data`, `poster_content_type`)" \
+        "VALUES(?, ?, ?, ?, ?)",
+        (title, director, year, poster_bytes, poster.content_type)
     )
 
     conn.commit()
