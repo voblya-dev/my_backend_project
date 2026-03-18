@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Form
 from pydantic import BaseModel
 import sqlite3
 from fastapi.responses import JSONResponse
@@ -200,5 +200,26 @@ def get_id_stats():
         "max_id": max_id,
         "available_ids": [i for i in range(1, max_id + 2) if i not in used_ids]
     }
+
+@app.post("/new_film_from_form")
+def add_new_film_from_form(
+    title: str = Form(...),
+    director: str = Form(...),
+    year: int = Form(...)
+):
+    conn = sqlite3.connect("first_base.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        f"INSERT INTO `Films`(`Title`, `Director`, `Year`)" \
+        "VALUES(?, ?, ?)",
+        (title, director, year)
+    )
+
+    conn.commit()
+
+    return "Film added!"
+
+
 
 # uvicorn main:app --reload

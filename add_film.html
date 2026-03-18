@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Добавление фильма</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <form action="https://backend.contrainer.ru/new_film_from_form" method="post">
+            <input name="title" type="text" maxlength="30" required placeholder="Название фильма">
+            <br>
+            <input name="director" type="text" maxlength="30" required placeholder="Режиссёр">
+            <br>
+            <input name="year" type="number" min="1900" max="2026" requared placeholder="Год выхода фильма">
+            <br>
+            <input type="submit" value="Добавить фильм">
+        </form>
+    </body>
+</html>
