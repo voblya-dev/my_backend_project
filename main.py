@@ -20,7 +20,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return "Nikita Petrovich is the best teacher in the world!!! thank for the domen)"
+    return "Nikita Petrovich is the best teacher in the world!!! thank for the domen!!"
 
 # Получить фильм по ID
 @app.get("/film/{film_id}")
