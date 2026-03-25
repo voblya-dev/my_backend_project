@@ -1,7 +1,16 @@
-from fastapi import FastAPI, Form, File, UploadFile, HTTPException
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
 from pydantic import BaseModel
 import sqlite3
-from fastapi.responses import JSONResponse
+
+from fastapi.responses import JSONResponse, Response
+
+from fastapi.templating import Jinja2Templates
+
+from fastapi.staticfiles import StaticFiles
+
+import requests
+
+templates = Jinja2Templates(directory="static")
 
 # Модель для фильма без ID (для обычного добавления)
 class Film(BaseModel):
@@ -17,6 +26,8 @@ class FilmWithID(BaseModel):
     year: int
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def read_root():
@@ -227,6 +238,52 @@ async def add_new_film_from_form(
 
     return "Film added!"
 
+@app.get("/film/{film_id}/poster")
+def get_film_poster(film_id: int):
+    conn = sqlite3.connect("first_base.db")
+    cursor = conn.cursor()
 
+    cursor.execute(
+        "SELECT `poster_data`, `poster_content_type` FROM `Films` " \
+        "WHERE `id`=?;", (film_id, )
+    )
+    rows = cursor.fetchall()
+
+    if len(rows) == 0:
+        raise HTTPException(status_code=404, detail="Фильм не найден")
+    poster_data, poster_content_type = rows[0]
+
+    if poster_data is None:
+        raise HTTPException(status_code=404, detail="У фильма нет постера")
+
+    return Response(
+        content=poster_data,
+        media_type=poster_content_type
+    )
+
+
+@app.get("/show_all_films")
+def show_all_films(request: Request):
+    conn = sqlite3.connect("first_base.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT `id`, `Title`, `Director`, `Year` FROM `Films`;")
+    rows = cursor.fetchall()
+    return templates.TemplateResponse(
+        request=request,
+        name="films.html",
+        context={
+        "films": rows
+        })
+
+@app.get("/random_dog")
+def get_random_dog(request: Request):
+    response = requests.get(f"https://dog.ceo/api/breeds/image/random")
+    image_link = response.json()['message']
+    return templates.TemplateResponse(
+        request=request,
+        name="dogs.html",
+        context={
+            "link": image_link
+        })
 
 # uvicorn main:app --reload
